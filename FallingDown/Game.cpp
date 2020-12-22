@@ -116,12 +116,12 @@ void Game::updateRandomBlocks()
         4. Create collision?
     */
 
-    //// Below is code to create collision
-    //for (size_t i = 0; i < blocks->getArraySize(); i++)
-    //{
-    //    if (player->getBounds().top + player->getBounds().height >= blocks->getBounds(i).top)
-    //        player->setPosition(player->getBounds().left, player->getBounds().top - 1.f);
-    //}
+    // Below is code to create collision
+    for (size_t i = 0; i < blocks->getVecSize(); i++)
+    {
+        if (player->getBounds().top + player->getBounds().height >= blocks->getBounds(i).top)
+            player->setPosition(player->getBounds().left, player->getBounds().top - 1.f);
+    }
 }
 
 
@@ -134,7 +134,6 @@ void Game::update()
     updateInput(); // left and right
     updateSideCollision(); // checks wall collision
     updateRandomBlocks();
-    std::cout << gameTime << std::endl;
 }
 
 

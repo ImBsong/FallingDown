@@ -1,14 +1,14 @@
 #ifndef BLOCKS_H
 #define BLOCKS_H
 
-#include <array>
+#include <vector>
 
 #include <SFML/Graphics.hpp>
 
 class Blocks
 {
 private:
-    std::array<sf::RectangleShape *, 48> rectArray;
+    std::vector<sf::RectangleShape *> rectVec;
     float blockWidth;
     sf::Vector2f blockSize;
 
@@ -22,7 +22,7 @@ public:
 
     //Accessor
     const sf::FloatRect getBounds(const size_t number) const;
-    const size_t getArraySize() const;
+    const size_t getVecSize() const;
 
     //Functions
     void move();
