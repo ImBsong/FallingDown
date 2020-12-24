@@ -1,6 +1,8 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include <vector>
+
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 
@@ -20,13 +22,12 @@ private:
 
     Player * player;
 
-    Blocks * blocks;
+    std::vector<Blocks *> blocks;
     
     //Initializer functions
     void initVariables();
     void initWindow();
     void initPlayer();
-    void initBlocks();
      
 public:
     //Constructor and Destructor
@@ -45,7 +46,7 @@ public:
     void updateInput();
     void updateSideCollision();
     void spawnBlocks();
-    void updateRandomBlocks();
+    void removeBlocks();
 
     ////Main Update function for order
     void update();

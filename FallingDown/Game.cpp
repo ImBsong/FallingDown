@@ -3,7 +3,7 @@
 void Game::initVariables()
 {
     this->gameTime = 0.f;
-    this->blockTimerMax = 50.f;
+    this->blockTimerMax = 500.f;
     this->blockTimer = blockTimerMax;
 }
 
@@ -21,24 +21,23 @@ void Game::initPlayer()
     this->player->setPosition(this->window->getSize().x/2 - this->player->getBounds().width / 2, 0.f);
 }
 
-void Game::initBlocks()
-{
-    this->blocks = new Blocks();
-}
-
 //CONSTRUCTORS and DESTRUCTORS
 Game::Game()
 {
+    initVariables();
     initWindow();
     initPlayer();
-    initBlocks();
 }
 
 Game::~Game()
 {
     delete this->window;
     delete this->player;
-    delete this->blocks;
+
+    for (auto *i : this->blocks)
+    {
+        delete i;
+    }
 }
 
 //MAIN FUNCTION for ENTRY POINT
@@ -54,9 +53,7 @@ void Game::run()
     }
 }
 
-
 //General Functions
-
 void Game::updatePollEvents()
 {
     while (this->window->pollEvent(this->ev))
@@ -85,10 +82,18 @@ void Game::updateInput()
 
 void Game::updateSideCollision()
 {
+    //First check player collision
     if (this->player->getBounds().left < 0)
         this->player->setPosition(0.f, this->player->getPosition().y);
     if (this->player->getBounds().left + this->player->getBounds().width > this->window->getSize().x)
         this->player->setPosition(this->window->getSize().x - this->player->getBounds().width, this->player->getPosition().y);
+
+    //Second check player and block collision
+    //for (size_t i = 0; i < blocks->getVecSize(); i++)
+    //{
+    //    if (player->getBounds().top + player->getBounds().height >= blocks->getBounds(i).top)
+    //        player->setPosition(player->getBounds().left, player->getBounds().top - 1.f);
+    //}
 }
 
 void Game::spawnBlocks()
@@ -96,44 +101,39 @@ void Game::spawnBlocks()
     if (blockTimer >= blockTimerMax)
     {
         blockTimer = 0.f;
-        //spawnblocks depending on timer (difficulty)
+        blocks.emplace_back(new Blocks());
+        blocks.back()->randomizeBlocks(this->gameTime);
     }
     else
         ++blockTimer;
 }
 
-void Game::updateRandomBlocks()
+void Game::removeBlocks()
 {
-    /*
-    TODO:
-        1. Choose how many blocks will appear x / 48
-            0-1000: 24 blocks
-            1000-2000: 20 blocks
-            ...
-            6000-7000 4 blocks
-        2. Choose where they will be arranged in a line.  Diff array?
-        3. Create them
-        4. Create collision?
-    */
-
-    // Below is code to create collision
-    for (size_t i = 0; i < blocks->getVecSize(); i++)
+    for (auto *i : blocks)
     {
-        if (player->getBounds().top + player->getBounds().height >= blocks->getBounds(i).top)
-            player->setPosition(player->getBounds().left, player->getBounds().top - 1.f);
+        if (i->getLifeTime() > 2000.f)
+            delete i; // Actually need to properly remove array
     }
 }
-
 
 //Main Update Function for order
 void Game::update()
 {
     ++gameTime;
+
+    spawnBlocks();
+
     this->player->update(); // just drops player
-    this->blocks->update();
+
+    for (auto *i : blocks)
+        i->update();
+
     updateInput(); // left and right
+
     updateSideCollision(); // checks wall collision
-    updateRandomBlocks();
+
+    removeBlocks();
 }
 
 
@@ -142,9 +142,10 @@ void Game::render()
 {
     this->window->clear();
 
-    this->player->render(*window);
+    for (auto *i : blocks)
+        i->render(*window);
 
-    this->blocks->render(*window);
+    this->player->render(*window);
 
     this->window->display();
 }

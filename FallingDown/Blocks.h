@@ -1,16 +1,24 @@
 #ifndef BLOCKS_H
 #define BLOCKS_H
 
-#include <vector>
+#include <array>
 
 #include <SFML/Graphics.hpp>
 
 class Blocks
 {
 private:
-    std::vector<sf::RectangleShape *> rectVec;
+    struct block {
+        bool visible;
+        float topLeftPosition;
+    };
+
+    std::array<sf::RectangleShape *, 48> rectArray;
+    std::array<block, 48> blockSelectArray;
+
     float blockWidth;
     sf::Vector2f blockSize;
+    float lifeTime;
 
     //Initializers
     void initVariables();
@@ -23,9 +31,12 @@ public:
     //Accessor
     const sf::FloatRect getBounds(const size_t number) const;
     const size_t getVecSize() const;
+    const float getLifeTime() const;
 
     //Functions
     void move();
+    void hideBlocks(int centerBlock, int numOfNeighbors);
+    void randomizeBlocks(float gameTime);
 
     void update();
     void render(sf::RenderTarget& target);

@@ -1,6 +1,5 @@
 #include "Player.h"
 
-
 //Private Initializers
 void Player::initVariables()
 {
