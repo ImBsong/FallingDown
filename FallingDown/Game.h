@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include <vector>
+#include <sstream>
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
@@ -12,6 +13,7 @@
 class Game
 {
 private:
+    bool gameOver;
     sf::RenderWindow * window;
 
     float gameTime;
@@ -23,10 +25,15 @@ private:
     Player * player;
 
     std::vector<Blocks *> blocks;
+
+    sf::Font font;
+    sf::Text pointText;
+    sf::Text gameOverText;
     
     //Initializer functions
     void initVariables();
     void initWindow();
+    void initText();
     void initPlayer();
      
 public:
@@ -43,10 +50,15 @@ public:
 
     //General Functions
     void updatePollEvents();
+    void updateGui();
     void updateInput();
-    void updateSideCollision();
+    void updateCollision();
     void spawnBlocks();
     void removeBlocks();
+    void checkDeath();
+    int getBallPosition();
+
+    void renderGui();
 
     ////Main Update function for order
     void update();

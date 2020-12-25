@@ -8,13 +8,6 @@
 class Blocks
 {
 private:
-    struct block {
-        bool visible;
-        float topLeftPosition;
-    };
-
-    std::array<sf::RectangleShape *, 48> rectArray;
-    std::array<block, 48> blockSelectArray;
 
     float blockWidth;
     sf::Vector2f blockSize;
@@ -24,6 +17,14 @@ private:
     void initVariables();
     void initRect();
 public:
+    struct block {
+        bool visible;
+        float topLeftPosition;
+    };
+
+    std::array<sf::RectangleShape *, 48> rectArray;
+    std::array<block, 48> blockSelectArray;
+
     //Constructor and Destructor
     Blocks();
     virtual ~Blocks();
@@ -32,6 +33,7 @@ public:
     const sf::FloatRect getBounds(const size_t number) const;
     const size_t getVecSize() const;
     const float getLifeTime() const;
+    const int getBlockWidth() const;
 
     //Functions
     void move();

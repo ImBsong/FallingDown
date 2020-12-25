@@ -21,9 +21,9 @@ void Blocks::initRect()
     for (size_t i = 0; i < rectArray.size(); i++)
     {
         rectArray[i] = new sf::RectangleShape();
-        rectArray[i]->setPosition(blockSelectArray[i].topLeftPosition, 1080.f);
+        rectArray[i]->setPosition(blockSelectArray[i].topLeftPosition, 1380.f);
         rectArray[i]->setSize(blockSize);
-        rectArray[i]->setFillColor(sf::Color::White);
+        rectArray[i]->setFillColor(sf::Color::Cyan);
     }
 }
 
@@ -35,6 +35,7 @@ Blocks::Blocks()
 
 Blocks::~Blocks()
 {
+    unsigned counter = 0;
     for (size_t i = 0; i < rectArray.size(); i++)
     {
         delete rectArray[i];
@@ -56,12 +57,17 @@ const float Blocks::getLifeTime() const
     return this->lifeTime;
 }
 
+const int Blocks::getBlockWidth() const
+{
+    return static_cast<int>(blockWidth);
+}
+
 
 void Blocks::move()
 {
     for (size_t i = 0; i < rectArray.size(); i++)
     {
-        rectArray[i]->move(0.f, -1.f);
+        rectArray[i]->move(0.f, -2.f);
     }
 }
 
@@ -72,11 +78,15 @@ void Blocks::hideBlocks(int centerBlock, int numOfNeighbors)
     {
     case 0:
         rectArray[centerBlock]->setFillColor(sf::Color(0, 0, 0, 255));
+        blockSelectArray[centerBlock].visible = false;
         break;
     case 1:
         rectArray[centerBlock - 1]->setFillColor(sf::Color(0, 0, 0, 255));
         rectArray[centerBlock]->setFillColor(sf::Color(0, 0, 0, 255));
         rectArray[centerBlock + 1]->setFillColor(sf::Color(0, 0, 0, 255));
+        blockSelectArray[centerBlock - 1].visible = false;
+        blockSelectArray[centerBlock].visible = false;
+        blockSelectArray[centerBlock + 1].visible = false;
         break;
     case 2:
         rectArray[centerBlock - 2]->setFillColor(sf::Color(0, 0, 0, 255));
@@ -84,66 +94,47 @@ void Blocks::hideBlocks(int centerBlock, int numOfNeighbors)
         rectArray[centerBlock]->setFillColor(sf::Color(0, 0, 0, 255));
         rectArray[centerBlock + 1]->setFillColor(sf::Color(0, 0, 0, 255));
         rectArray[centerBlock + 2]->setFillColor(sf::Color(0, 0, 0, 255));
-        break;
-    case 3:
-        rectArray[centerBlock - 3]->setFillColor(sf::Color(0, 0, 0, 255));
-        rectArray[centerBlock - 2]->setFillColor(sf::Color(0, 0, 0, 255));
-        rectArray[centerBlock - 1]->setFillColor(sf::Color(0, 0, 0, 255));
-        rectArray[centerBlock]->setFillColor(sf::Color(0, 0, 0, 255));
-        rectArray[centerBlock + 1]->setFillColor(sf::Color(0, 0, 0, 255));
-        rectArray[centerBlock + 2]->setFillColor(sf::Color(0, 0, 0, 255));
-        rectArray[centerBlock + 3]->setFillColor(sf::Color(0, 0, 0, 255));
-        break;
-    case 4:
-        rectArray[centerBlock - 4]->setFillColor(sf::Color(0, 0, 0, 255));
-        rectArray[centerBlock - 3]->setFillColor(sf::Color(0, 0, 0, 255));
-        rectArray[centerBlock - 2]->setFillColor(sf::Color(0, 0, 0, 255));
-        rectArray[centerBlock - 1]->setFillColor(sf::Color(0, 0, 0, 255));
-        rectArray[centerBlock]->setFillColor(sf::Color(0, 0, 0, 255));
-        rectArray[centerBlock + 1]->setFillColor(sf::Color(0, 0, 0, 255));
-        rectArray[centerBlock + 2]->setFillColor(sf::Color(0, 0, 0, 255));
-        rectArray[centerBlock + 3]->setFillColor(sf::Color(0, 0, 0, 255));
-        rectArray[centerBlock + 4]->setFillColor(sf::Color(0, 0, 0, 255));
+        blockSelectArray[centerBlock - 2].visible = false;
+        blockSelectArray[centerBlock - 1].visible = false;
+        blockSelectArray[centerBlock].visible = false;
+        blockSelectArray[centerBlock + 1].visible = false;
+        blockSelectArray[centerBlock + 2].visible = false;
         break;
     default:
-        rectArray[centerBlock - 4]->setFillColor(sf::Color(0, 0, 0, 255));
-        rectArray[centerBlock - 3]->setFillColor(sf::Color(0, 0, 0, 255));
         rectArray[centerBlock - 2]->setFillColor(sf::Color(0, 0, 0, 255));
         rectArray[centerBlock - 1]->setFillColor(sf::Color(0, 0, 0, 255));
         rectArray[centerBlock]->setFillColor(sf::Color(0, 0, 0, 255));
         rectArray[centerBlock + 1]->setFillColor(sf::Color(0, 0, 0, 255));
         rectArray[centerBlock + 2]->setFillColor(sf::Color(0, 0, 0, 255));
-        rectArray[centerBlock + 3]->setFillColor(sf::Color(0, 0, 0, 255));
-        rectArray[centerBlock + 4]->setFillColor(sf::Color(0, 0, 0, 255));
+        blockSelectArray[centerBlock - 2].visible = false;
+        blockSelectArray[centerBlock - 1].visible = false;
+        blockSelectArray[centerBlock].visible = false;
+        blockSelectArray[centerBlock + 1].visible = false;
+        blockSelectArray[centerBlock + 2].visible = false;
         break;
     }
 }
 
 void Blocks::randomizeBlocks(float gameTime)
 {
-    int randCenterBlock = rand() % 42 + 5;
+    int randCenterBlock = rand() % 40 + 4;
     
     // Make logic based on game time.  Adjacent blocks will disappear based on difficulty
 
     if (gameTime < 1000)
     {
         //Level 1
-        hideBlocks(randCenterBlock, 4);
+        hideBlocks(randCenterBlock, 2);
     }
     else if (gameTime >= 1000 && gameTime < 2000)
     {
         //Level 2
-        hideBlocks(randCenterBlock, 3);
-    }
-    else if (gameTime >= 2000 && gameTime < 3000)
-    {
-        //Level 3
-        hideBlocks(randCenterBlock, 2);
+        hideBlocks(randCenterBlock, 1);
     }
     else
     {
         //Level 4
-        hideBlocks(randCenterBlock, 1);
+        hideBlocks(randCenterBlock, 0);
     }
 }
 

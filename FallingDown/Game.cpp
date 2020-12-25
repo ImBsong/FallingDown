@@ -3,8 +3,9 @@
 void Game::initVariables()
 {
     this->gameTime = 0.f;
-    this->blockTimerMax = 500.f;
+    this->blockTimerMax = 90.f;
     this->blockTimer = blockTimerMax;
+    this->gameOver = false;
 }
 
 void Game::initWindow()
@@ -15,10 +16,30 @@ void Game::initWindow()
     this->window->setVerticalSyncEnabled(false);
 }
 
+void Game::initText()
+{
+    if (!this->font.loadFromFile("Fonts/alpha_echo.ttf"))
+        std::cout << "ERROR: Font did not load!\n";
+
+    this->pointText.setFont(this->font);
+    this->pointText.setCharacterSize(20);
+    this->pointText.setFillColor(sf::Color::White);
+    this->pointText.setPosition(25.f, 40.f);
+
+    this->gameOverText.setFont(this->font);
+    this->gameOverText.setCharacterSize(100);
+    this->gameOverText.setFillColor(sf::Color::Red);
+    this->gameOverText.setPosition(25.f, 40.f);
+    this->gameOverText.setString("Game Over!");
+    this->gameOverText.setPosition(
+        (window->getSize().x / 2.f) - gameOverText.getGlobalBounds().width / 2.f,
+        window->getSize().y / 2.f - gameOverText.getGlobalBounds().height / 2.f);
+}
+
 void Game::initPlayer()
 {
     this->player = new Player();
-    this->player->setPosition(this->window->getSize().x/2 - this->player->getBounds().width / 2, 0.f);
+    this->player->setPosition(this->window->getSize().x/2 - this->player->getBounds().width / 2, 20.f);
 }
 
 //CONSTRUCTORS and DESTRUCTORS
@@ -26,6 +47,7 @@ Game::Game()
 {
     initVariables();
     initWindow();
+    initText();
     initPlayer();
 }
 
@@ -47,7 +69,8 @@ void Game::run()
     {
         updatePollEvents();
 
-        update();
+        if (!gameOver)
+            update();
 
         render();
     }
@@ -71,6 +94,14 @@ void Game::updatePollEvents()
     }
 }
 
+void Game::updateGui()
+{
+    std::stringstream ss;
+    ss << "Points: " << this->gameTime;
+
+    this->pointText.setString(ss.str());
+}
+
 void Game::updateInput()
 {
     //Move commands
@@ -80,20 +111,30 @@ void Game::updateInput()
         player->move(1.f, 0.f);
 }
 
-void Game::updateSideCollision()
+void Game::updateCollision()
 {
     //First check player collision
     if (this->player->getBounds().left < 0)
-        this->player->setPosition(0.f, this->player->getPosition().y);
+        this->player->setPosition(1.f, this->player->getPosition().y);
     if (this->player->getBounds().left + this->player->getBounds().width > this->window->getSize().x)
-        this->player->setPosition(this->window->getSize().x - this->player->getBounds().width, this->player->getPosition().y);
+        this->player->setPosition(this->window->getSize().x - this->player->getBounds().width - 1.f, this->player->getPosition().y);
 
-    //Second check player and block collision
-    //for (size_t i = 0; i < blocks->getVecSize(); i++)
-    //{
-    //    if (player->getBounds().top + player->getBounds().height >= blocks->getBounds(i).top)
-    //        player->setPosition(player->getBounds().left, player->getBounds().top - 1.f);
-    //}
+    //Check Collision with blocks
+    for (auto *blockline : blocks)
+    {
+        if (player->getBounds().top + player->getBounds().height >= blockline->getBounds(0).top && player->getBounds().top + player->getBounds().height <= blockline->getBounds(0).top + blockline->getBounds(0).height)
+        {
+            // Move player if they are on top of a visible block
+            for (size_t i = 0; i < blockline->blockSelectArray.size(); i++)
+            {
+                if (blockline->blockSelectArray[getBallPosition()].visible)
+                {
+                    player->move(0.f, -.6f);
+                }
+                break;
+            }
+        }
+    }
 }
 
 void Game::spawnBlocks()
@@ -109,18 +150,44 @@ void Game::spawnBlocks()
 }
 
 void Game::removeBlocks()
-{
+{  
+    unsigned counter = 0;
     for (auto *i : blocks)
     {
-        if (i->getLifeTime() > 2000.f)
-            delete i; // Actually need to properly remove array
+        if (i->getLifeTime() > 1100.f)
+        {
+            delete blocks.at(counter);
+            blocks.erase(blocks.begin() + counter);
+            --counter;
+        }
+        ++counter;
     }
+}
+
+void Game::checkDeath()
+{
+    if (player->getBounds().top < 0.f)
+        gameOver = true;
+}
+
+int Game::getBallPosition()
+{
+    return static_cast<int>(this->player->getPosition().x / 40);
+}
+
+void Game::renderGui()
+{
+    this->window->draw(pointText);
 }
 
 //Main Update Function for order
 void Game::update()
 {
     ++gameTime;
+
+    updateGui();
+
+    checkDeath();
 
     spawnBlocks();
 
@@ -131,21 +198,25 @@ void Game::update()
 
     updateInput(); // left and right
 
-    updateSideCollision(); // checks wall collision
+    updateCollision(); // checks wall collision 
 
     removeBlocks();
 }
-
 
 //Main Render function for order
 void Game::render()
 {
     this->window->clear();
 
+    renderGui();
+
     for (auto *i : blocks)
         i->render(*window);
 
     this->player->render(*window);
+
+    if (gameOver)
+        window->draw(gameOverText);
 
     this->window->display();
 }

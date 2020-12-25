@@ -3,7 +3,7 @@
 //Private Initializers
 void Player::initVariables()
 {
-    this->speed = 5.f;
+    this->speed = 7.f;
 }
 
 void Player::initTexture()
@@ -15,7 +15,7 @@ void Player::initTexture()
 void Player::initSprite()
 {
     this->sprite.setTexture(texture);
-    this->sprite.setScale(.05f, .05f);
+    this->sprite.setScale(.03f, .03f);
 }
 
 //Constructor and Destructor
@@ -55,7 +55,7 @@ void Player::move(const float dirX, const float dirY)
 //Functions
 void Player::update()
 {
-    this->sprite.move(0.f, 1.f);
+    this->sprite.move(0.f, 2.f);
 }
 
 void Player::render(sf::RenderTarget& target)
