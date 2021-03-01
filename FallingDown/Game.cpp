@@ -3,9 +3,12 @@
 void Game::initVariables()
 {
     this->gameTime = 0.f;
-    this->blockTimerMax = 90.f;
+    this->blockTimerMax = 60.f;
     this->blockTimer = blockTimerMax;
     this->gameOver = false;
+
+    boostCooldownMax = 200.f;
+    boostCooldown = 0.f;
 }
 
 void Game::initWindow()
@@ -36,6 +39,21 @@ void Game::initText()
         window->getSize().y / 2.f - gameOverText.getGlobalBounds().height / 2.f);
 }
 
+void Game::initSound()
+{
+    if (!this->sfxBoostBuffer.loadFromFile("Sounds/doorOpen_002.ogg"))
+        std::cout << "ERROR: SFX did not load!\n";
+
+    sfxBoost.setBuffer(sfxBoostBuffer);
+
+    if (!this->music.openFromFile("Sounds/Death At My Heels.ogg"))
+        std::cout << "ERROR: Music did not load!\n";
+
+    music.setVolume(10);
+    music.play();
+    music.setLoop(true);
+}
+
 void Game::initPlayer()
 {
     this->player = new Player();
@@ -48,6 +66,7 @@ Game::Game()
     initVariables();
     initWindow();
     initText();
+    initSound();
     initPlayer();
 }
 
@@ -89,7 +108,10 @@ void Game::updatePollEvents()
         case sf::Event::KeyPressed:
             if (this->ev.key.code == sf::Keyboard::Escape)
                 this->window->close();
+            if (this->ev.key.code == sf::Keyboard::R)
+                this->resetGame();
             break;
+
         }
     }
 }
@@ -109,6 +131,16 @@ void Game::updateInput()
         player->move(-1.f, 0.f);
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) || sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
         player->move(1.f, 0.f);
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+    {
+        if (boostCooldown > boostCooldownMax)
+        {
+            player->startSpeedBoost();
+            sfxBoost.play();
+            boostCooldown = 0.f;
+        }
+    }
 }
 
 void Game::updateCollision()
@@ -175,6 +207,23 @@ int Game::getBallPosition()
     return static_cast<int>(this->player->getPosition().x / 40);
 }
 
+void Game::resetGame() // Needs to be fixed
+{
+    // Make current blocks invisible
+    for (auto *i : blocks)
+    {
+        i->resetBlocks();
+    }
+
+    // Reset player and GUI
+    initVariables();
+    initText();
+
+    delete this->player;
+    initPlayer();
+    
+}
+
 void Game::renderGui()
 {
     this->window->draw(pointText);
@@ -191,7 +240,7 @@ void Game::update()
 
     spawnBlocks();
 
-    this->player->update(); // just drops player
+    this->player->update(); // Drops player and speed boost
 
     for (auto *i : blocks)
         i->update();
@@ -201,6 +250,10 @@ void Game::update()
     updateCollision(); // checks wall collision 
 
     removeBlocks();
+
+    ++boostCooldown;
+    if (boostCooldown > 1000000.f) // Just to prevent overflow
+        boostCooldown = boostCooldownMax;
 }
 
 //Main Render function for order
@@ -208,10 +261,13 @@ void Game::render()
 {
     this->window->clear();
 
-    renderGui();
+    if (blocks.size() > 0)
+    {
+        for (auto *i : blocks)
+            i->render(*window);
+    }
 
-    for (auto *i : blocks)
-        i->render(*window);
+    renderGui();
 
     this->player->render(*window);
 

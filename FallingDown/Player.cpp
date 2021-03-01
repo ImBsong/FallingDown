@@ -3,7 +3,10 @@
 //Private Initializers
 void Player::initVariables()
 {
-    this->speed = 7.f;
+    this->speedBoostTimer = 0;
+    this->speedBoosted = 20.f;
+    this->speedRegular = 7.f;
+    this->speed = this->speedRegular;
 }
 
 void Player::initTexture()
@@ -47,15 +50,33 @@ void Player::setPosition(const float x, const float y)
     sprite.setPosition(x, y);
 }
 
+void Player::setPlayerSpeed(const float newSpeed)
+{
+    this->speed = newSpeed;
+}
+
 void Player::move(const float dirX, const float dirY)
 {
     this->sprite.move(this->speed * dirX, this->speed * dirY);
 }
 
+void Player::startSpeedBoost()
+{
+    this->speedBoostTimer = 20;
+    setPlayerSpeed(speedBoosted);
+}
+
 //Functions
 void Player::update()
 {
-    this->sprite.move(0.f, 2.f);
+    if (this->speedBoostTimer > 0)
+    {
+        --speedBoostTimer;
+    }
+    else
+        setPlayerSpeed(speedRegular);
+
+    this->sprite.move(0.f, 2.f);    
 }
 
 void Player::render(sf::RenderTarget& target)

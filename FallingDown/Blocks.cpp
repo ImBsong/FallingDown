@@ -21,9 +21,9 @@ void Blocks::initRect()
     for (size_t i = 0; i < rectArray.size(); i++)
     {
         rectArray[i] = new sf::RectangleShape();
-        rectArray[i]->setPosition(blockSelectArray[i].topLeftPosition, 1380.f);
+        rectArray[i]->setPosition(blockSelectArray[i].topLeftPosition, 1380.f); // Create it under the screen
         rectArray[i]->setSize(blockSize);
-        rectArray[i]->setFillColor(sf::Color::Cyan);
+        rectArray[i]->setFillColor(sf::Color::Color(75, 0, 130, 200));
     }
 }
 
@@ -67,7 +67,7 @@ void Blocks::move()
 {
     for (size_t i = 0; i < rectArray.size(); i++)
     {
-        rectArray[i]->move(0.f, -2.f);
+        rectArray[i]->move(0.f, -2.2f);
     }
 }
 
@@ -135,6 +135,19 @@ void Blocks::randomizeBlocks(float gameTime)
     {
         //Level 4
         hideBlocks(randCenterBlock, 0);
+    }
+}
+
+void Blocks::resetBlocks()
+{
+    // Make old ones invisible
+    for (size_t i = 0; i < rectArray.size(); i++)
+    {
+        rectArray[i]->setFillColor(sf::Color(0, 0, 0, 255));
+    }
+    for (size_t i = 0; i < blockSelectArray.size(); i++)
+    {
+        blockSelectArray[i].visible = false;
     }
 }
 

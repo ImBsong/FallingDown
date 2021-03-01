@@ -16,6 +16,7 @@ private:
     //Initializers
     void initVariables();
     void initRect();
+
 public:
     struct block {
         bool visible;
@@ -39,6 +40,7 @@ public:
     void move();
     void hideBlocks(int centerBlock, int numOfNeighbors);
     void randomizeBlocks(float gameTime);
+    void resetBlocks();
 
     void update();
     void render(sf::RenderTarget& target);
